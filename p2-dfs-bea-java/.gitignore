@@ -1,0 +1,12 @@
+# Ignore target and IDE files
+
+/target/
+/.idea/
+*.iml
+/.classpath
+/.project
+/.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
