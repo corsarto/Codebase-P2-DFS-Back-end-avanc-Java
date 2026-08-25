@@ -6,6 +6,7 @@ import com.openclassrooms.p2dfsbea.service.ExpenseService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -88,7 +89,7 @@ public class ConsoleMenu {
         Map<String, BigDecimal> totals = service.totalPerCategory(list);
         Set<String> months = service.distinctMonths(list);
         System.out.println("\nTotals by category:");
-        totals.forEach((k, v) -> System.out.println(k + ": " + v.setScale(2, BigDecimal.ROUND_HALF_UP) + " EUR"));
+        totals.forEach((k, v) -> System.out.println(k + ": " + v.setScale(2, RoundingMode.HALF_UP) + " EUR"));
         System.out.println("Distinct months: " + months.size());
     }
 
@@ -115,7 +116,7 @@ public class ConsoleMenu {
             System.out.print("Years: ");
             int years = Integer.parseInt(scanner.nextLine().trim());
             BigDecimal capacity = service.borrowingCapacity(monthly, annual, years);
-            System.out.println("Estimated borrowing capacity: " + capacity.setScale(2, BigDecimal.ROUND_HALF_UP) + " EUR");
+            System.out.println("Estimated borrowing capacity: " + capacity.setScale(2, RoundingMode.HALF_UP) + " EUR");
         } catch (Exception e) {
             System.out.println("Invalid input: " + e.getMessage());
         }

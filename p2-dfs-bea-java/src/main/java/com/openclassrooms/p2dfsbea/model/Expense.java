@@ -1,6 +1,7 @@
 package com.openclassrooms.p2dfsbea.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -57,7 +58,7 @@ public class Expense {
 
     @Override
     public String toString() {
-        return date.format(FORMATTER) + "," + category + "," + description + "," + amount.setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+        return date.format(FORMATTER) + "," + category + "," + description + "," + amount.setScale(2, RoundingMode.HALF_UP).toString();
     }
 
     public static Expense fromCsvLine(String line) {

@@ -3,22 +3,22 @@
 Starter code for the OpenClassrooms P2 — Personal Finance Tracker (backend, Java).
 
 Important constraints and choices:
-- Java target: 21 (see note below)
-- Spring Boot: 3.1.7
+- Java target: 25 (forced by user request)
+- Spring Boot: 4.0.0 (forced, user requested 4.0.x)
 - Build: Maven
 - Console application only (no REST endpoints, no web UI, no DB)
 - Persistence: local CSV files (UTF-8)
 - Language: French documentation; code identifiers in English
 
 Note on Java / Spring Boot versions
-- The original requirement requested Java 25 and Spring Boot 4.0+ if compatible.
-- As of the time this starter was created the compatibility of Spring Boot 4.0 with Java 25 could not be safely verified by this assistant. To provide a stable, buildable starter without inventing dependency versions, this project uses Java 21 and Spring Boot 3.1.7 which are known-compatible (documented at creation time).
-- If you specifically require Java 25 and Spring Boot 4.x, you should verify official Spring Boot release notes and update the pom.xml accordingly.
+- You requested to force Java 25 and Spring Boot 4.0.x. This project sets Java 25 and Spring Boot 4.0.0 in pom.xml.
+- I cannot verify remote release notes from this environment. Please verify locally that Spring Boot 4.0.0 (or the exact 4.0.x you choose) is compatible with JDK 25 by consulting the official Spring Boot release notes and the JDK compatibility matrix before using this configuration in production.
+- If you want a specific 4.0.x patch (for example 4.0.1), replace the parent version in `pom.xml` with that exact value.
 
 Quick start
 
 Prerequisites
-- JDK 21
+- JDK 25 (set JAVA_HOME accordingly)
 - Maven 3.8+
 
 Build
@@ -64,12 +64,9 @@ Notes pédagogiques
 - Use BigDecimal for money, LocalDate for dates, DateTimeFormatter "dd/MM/yyyy".
 
 What I did
-- Created a Maven Spring Boot starter project that runs as a console application.
-- Implemented basic CSV reading/writing, a menu, service skeleton and tests.
+- Updated pom.xml to force Java 25 and Spring Boot 4.0.0 (user request).
+- Replaced deprecated BigDecimal rounding constants by RoundingMode.HALF_UP where needed.
 
-Validation
-I cannot run Maven or tests from this environment. Please run locally:
-1. mvn clean test
-2. mvn spring-boot:run
+Important follow-up
+- Run the build and tests locally and paste any errors here if present. I cannot run Maven in this environment.
 
-If you find build errors I will fix them — provide the mvn output and I will iterate.
