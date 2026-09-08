@@ -1,72 +1,69 @@
-# p2-dfs-bea-java
+# P2 DFS BEA Java
 
-Starter code for the OpenClassrooms P2 — Personal Finance Tracker (backend, Java).
+Starter code Java du projet P2 OpenClassrooms : application console de suivi des dépenses.
 
-Important constraints and choices:
-- Java target: 25 (forced by user request)
-- Spring Boot: 4.0.0 (forced, user requested 4.0.x)
-- Build: Maven
-- Console application only (no REST endpoints, no web UI, no DB)
-- Persistence: local CSV files (UTF-8)
-- Language: French documentation; code identifiers in English
+## Contraintes techniques
 
-Note on Java / Spring Boot versions
-- You requested to force Java 25 and Spring Boot 4.0.x. This project sets Java 25 and Spring Boot 4.0.0 in pom.xml.
-- I cannot verify remote release notes from this environment. Please verify locally that Spring Boot 4.0.0 (or the exact 4.0.x you choose) is compatible with JDK 25 by consulting the official Spring Boot release notes and the JDK compatibility matrix before using this configuration in production.
-- If you want a specific 4.0.x patch (for example 4.0.1), replace the parent version in `pom.xml` with that exact value.
+- Java 25
+- Spring Boot 4.0.0, utilisé uniquement pour démarrer l'application console
+- Maven
+- Persistance locale dans `src/main/resources/emma_expenses.csv`
+- Aucun endpoint REST, aucune interface web, aucune base de données et aucun ORM
+- Montants représentés avec `BigDecimal`
+- Dates représentées avec `LocalDate` au format `dd/MM/yyyy`
 
-Quick start
+## Prérequis
 
-Prerequisites
-- JDK 25 (set JAVA_HOME accordingly)
-- Maven 3.8+
+- JDK 25 configuré dans `JAVA_HOME`
+- Maven 3.8 ou version ultérieure
 
-Build
-- mvn -v
-- mvn clean package
+## Démarrer le projet
 
-Run (console)
-- mvn spring-boot:run
+Depuis le dossier `p2-dfs-bea-java/` :
 
-Or run the generated jar:
-- java -jar target/p2-dfs-bea-java-0.1.0-SNAPSHOT.jar
+```bash
+mvn clean package
+mvn spring-boot:run
+```
 
-Project structure
+Le fichier CSV est créé avec l'en-tête `date,category,description,amount` s'il est absent ou vide.
+L'application accepte les montants saisis avec un point ou une virgule décimale.
 
-p2-dfs-bea-java/
-├── pom.xml
-├── README.md
-├── .gitignore
-├── src/
-│   ├── main/
-│   │   ├── java/com/openclassrooms/p2dfsbea/
-│   │   │   ├── P2DfsBeaApplication.java
-│   │   │   ├── model/Expense.java
-│   │   │   ├── repository/ExpenseRepository.java
-│   │   │   ├── service/ExpenseService.java
-│   │   │   └── ui/ConsoleMenu.java
-│   │   └── resources/
-│   │       ├── emma_expenses.csv
-│   │       └── personnal_expenses.csv
-│   └── test/
-│       └── java/com/openclassrooms/p2dfsbea/ExpenseServiceTest.java
-└── agent.md
+Pour lancer le fichier JAR construit :
 
-CSV files
-- src/main/resources/emma_expenses.csv
-- src/main/resources/personnal_expenses.csv
+```bash
+java -jar target/p2-dfs-bea-java-0.1.0-SNAPSHOT.jar
+```
 
-Commands de test
-- mvn test
+## Fonctionnalités du starter
 
-Notes pédagogiques
-- Les messages console en anglais reproduisent le original Python project behavior; documentation est fournie en français.
-- Use BigDecimal for money, LocalDate for dates, DateTimeFormatter "dd/MM/yyyy".
+- Affichage de l'historique, trié du plus récent au plus ancien
+- Ajout d'une dépense dans `emma_expenses.csv`
+- Création automatique du fichier et de son en-tête
+- Gestion des dates et montants invalides sans stack trace utilisateur
+- Gestion d'un historique absent ou vide
+- Jeu de données d'exemple dans `src/main/resources/emma_expenses.csv`
 
-What I did
-- Updated pom.xml to force Java 25 and Spring Boot 4.0.0 (user request).
-- Replaced deprecated BigDecimal rounding constants by RoundingMode.HALF_UP where needed.
+## Fonctionnalités à implémenter par l'étudiant
 
-Important follow-up
-- Run the build and tests locally and paste any errors here if present. I cannot run Maven in this environment.
+- Total global et statistiques par catégorie
+- Nombre de mois distincts et moyennes mensuelles
+- Simulation d'achat d'une voiture
+- Simulation de prêt immobilier avec limite d'endettement à 35 %
+- Tests unitaires et tests ciblés des nouvelles fonctionnalités
+
+Les tests préécrits des fonctionnalités avancées ne sont volontairement pas inclus dans ce starter afin que le projet compile avant leur implémentation.
+
+## Organisation du code
+
+```text
+src/main/java/com/openclassrooms/p2dfsbea/
+├── P2DfsBeaApplication.java  # point d'entrée Spring Boot
+├── model/Expense.java         # modèle fortement typé
+├── repository/ExpenseRepository.java
+├── service/ExpenseService.java
+└── ui/ConsoleMenu.java
+```
+
+Le projet reste volontairement limité à une application console pédagogique.
 

@@ -63,13 +63,13 @@ public class Expense {
 
     public static Expense fromCsvLine(String line) {
         if (line == null || line.isBlank()) return null;
-        String[] parts = line.split(",");
+        String[] parts = line.split(",", -1);
         if (parts.length < 4) return null;
         try {
-            LocalDate date = LocalDate.parse(parts[0], FORMATTER);
-            String category = parts[1];
-            String description = parts[2];
-            java.math.BigDecimal amount = new java.math.BigDecimal(parts[3]);
+            LocalDate date = LocalDate.parse(parts[0].trim(), FORMATTER);
+            String category = parts[1].trim();
+            String description = parts[2].trim();
+            BigDecimal amount = new BigDecimal(parts[3].trim().replace(',', '.'));
             return new Expense(date, category, description, amount);
         } catch (Exception e) {
             return null;

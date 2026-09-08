@@ -60,7 +60,7 @@ public class ConsoleMenu {
             String description = scanner.nextLine().trim();
 
             System.out.print("Amount (e.g. 12.50): ");
-            String amountS = scanner.nextLine().trim();
+            String amountS = scanner.nextLine().trim().replace(',', '.');
             BigDecimal amount = new BigDecimal(amountS);
 
             Expense e = new Expense(date, category, description, amount);

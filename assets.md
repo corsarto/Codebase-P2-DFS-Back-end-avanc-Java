@@ -16,16 +16,6 @@
 
 ---
 
-## Asset 2 — Fichier de dépenses vide
-
-**Fichier :** `personnal_expenses.csv`
-
-**Type :** fichier CSV vide contenant uniquement l'en-tête.
-
-**Usage pédagogique :** permet de tester le comportement de l'application lorsqu'aucune dépense n'est encore enregistrée, puis l'ajout de nouvelles dépenses.
-
----
-
 ## Notes
 
-Les deux fichiers doivent rester à l'emplacement attendu par l'application. Aucun secret ni identifiant ne doit être ajouté dans ces fichiers.
+Le fichier doit rester à l'emplacement attendu par l'application. Un fichier absent ou vide est créé avec son en-tête lors du premier ajout. Aucun secret ni identifiant ne doit être ajouté dans ce fichier.

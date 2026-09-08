@@ -15,12 +15,10 @@ import java.util.stream.Stream;
 
 public class ExpenseRepository {
     private final Path emmaPath = Path.of("src/main/resources/emma_expenses.csv");
-    private final Path personnalPath = Path.of("src/main/resources/personnal_expenses.csv");
 
     public List<Expense> readAll() {
         List<Expense> result = new ArrayList<>();
         readFileIntoList(emmaPath, result);
-        readFileIntoList(personnalPath, result);
         return result;
     }
 
@@ -34,12 +32,12 @@ public class ExpenseRepository {
     }
 
     public void append(Expense expense) throws IOException {
-        // Ensure file exists
-        if (!Files.exists(personnalPath)) {
-            Files.createDirectories(personnalPath.getParent());
-            Files.createFile(personnalPath);
+        if (!Files.exists(emmaPath) || Files.size(emmaPath) == 0) {
+            Files.createDirectories(emmaPath.getParent());
+            Files.writeString(emmaPath, "date,category,description,amount" + System.lineSeparator(),
+                StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         }
-        try (BufferedWriter writer = Files.newBufferedWriter(personnalPath, StandardCharsets.UTF_8, StandardOpenOption.APPEND)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(emmaPath, StandardCharsets.UTF_8, StandardOpenOption.APPEND)) {
             writer.write(expense.toCsvLine());
             writer.newLine();
         }
