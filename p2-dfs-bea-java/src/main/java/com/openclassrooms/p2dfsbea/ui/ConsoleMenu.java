@@ -70,6 +70,8 @@ public class ConsoleMenu {
             System.out.println("Invalid date format. Use dd/MM/yyyy.");
         } catch (IOException io) {
             System.out.println("Unable to save expense: " + io.getMessage());
+        } catch(NumberFormatException ex) {
+        	System.out.println("Invalid amount format. Decimal is expected.");
         } catch (Exception ex) {
             System.out.println("Error: " + ex.getMessage());
         }
