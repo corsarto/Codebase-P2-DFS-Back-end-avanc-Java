@@ -4,7 +4,6 @@ import com.openclassrooms.p2dfsbea.model.Expense;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;

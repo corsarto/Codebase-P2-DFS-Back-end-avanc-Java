@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class ConsoleMenu {
@@ -24,7 +25,8 @@ public class ConsoleMenu {
             switch (choice) {
                 case "1" -> showHistory();
                 case "2" -> addExpense();
-                case "3" -> {
+                case "3" -> statistics();
+                case "4" -> {
                     System.out.println("Goodbye");
                     running = false;
                 }
@@ -37,7 +39,8 @@ public class ConsoleMenu {
         System.out.println("\n--- Personal Finance Tracker ---");
         System.out.println("1) Show history");
         System.out.println("2) Add expense");
-        System.out.println("3) Quit");
+        System.out.println("3) Statistics");
+        System.out.println("4) Quit");
         System.out.print("Choose an option: ");
     }
 
@@ -75,5 +78,32 @@ public class ConsoleMenu {
         } catch (Exception ex) {
             System.out.println("Error: " + ex.getMessage());
         }
+    }
+
+    private void statistics() {
+        List<Expense> expenses = service.loadAllExpenses();
+        if (expenses.isEmpty()) {
+            System.out.println("No expenses yet. Add one.");
+            return;
+        }
+
+        Map<String, BigDecimal> amountForCategories = service.calculateAmountForCategories(expenses);
+        System.out.println(" Totals by category :");
+        for (Map.Entry<String, BigDecimal> amountEntry : amountForCategories.entrySet()) {
+            System.out.println(amountEntry.getKey() + " : " + amountEntry.getValue());
+        }
+
+        BigDecimal totalAmount = service.calculateTotalAmount(amountForCategories);
+        System.out.println(" Total expenses: " + totalAmount);
+
+        int months = service.countMonths(expenses);
+        System.out.println(" Months covered: " + months);
+
+        Map<String, BigDecimal> monthlyAverageByCategory = service.calculateMonthlyAverageByCategories(amountForCategories, months);
+        System.out.println(" Monthly average by category :");
+        for (Map.Entry<String, BigDecimal> averageEntry : monthlyAverageByCategory.entrySet()) {
+            System.out.println(averageEntry.getKey() + " : " + averageEntry.getValue());
+        }
+
     }
 }
