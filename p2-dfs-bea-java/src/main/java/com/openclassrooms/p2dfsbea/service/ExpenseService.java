@@ -28,7 +28,7 @@ public class ExpenseService {
         if (expenses.isEmpty()) {
            return new TreeMap<>();
         }
-        TreeMap<String, BigDecimal> totalsByCategories = new TreeMap<>(); 
+        Map<String, BigDecimal> totalsByCategories = new TreeMap<>(); 
         for (Expense expense : expenses) {
             if (totalsByCategories.containsKey(expense.getCategory())) {
                 BigDecimal oldTotal = totalsByCategories.get(expense.getCategory());
@@ -50,7 +50,7 @@ public class ExpenseService {
     }
 
     public int countMonths(List<Expense> expenses) {
-        HashSet<YearMonth> allMonth = new HashSet<>();
+        Set<YearMonth> allMonth = new HashSet<>();
         for (Expense expense : expenses) {
             allMonth.add(YearMonth.from(expense.getDate()));
         }
@@ -61,7 +61,7 @@ public class ExpenseService {
         if (numberOfMonths == 0) {
             return new TreeMap<>();
         }
-        TreeMap<String, BigDecimal> averageByCategory = new TreeMap<>();
+        Map<String, BigDecimal> averageByCategory = new TreeMap<>();
         BigDecimal numberOfMonthBigDecimal = BigDecimal.valueOf(numberOfMonths);
         for (Map.Entry<String, BigDecimal> amountByCategoryEntry : allAmountByCategories.entrySet()) {
             BigDecimal average = amountByCategoryEntry.getValue().divide(numberOfMonthBigDecimal, 2, RoundingMode.HALF_UP);
@@ -70,6 +70,57 @@ public class ExpenseService {
         return averageByCategory;
     }
 
-    // public Map<String, BigDecimal> calculatePercentageByCategories(Map<String, BigDecimal> allAmountByCategories, BigDecimal totalAmount) {
-    // }
+    public List<Expense> removeBudget(List<Expense> expenses) {
+        List<Expense> allCategoryExceptBudget = new ArrayList<Expense>();
+            for (Expense expense : expenses) {
+                if (!expense.getCategory().equals("budget"))  {
+                    allCategoryExceptBudget.add(expense);
+                }
+            }
+        return allCategoryExceptBudget;
+    }
+
+    public BigDecimal findBudget(List<Expense> expenses) {
+        for (Expense expense : expenses) {
+            if (expense.getCategory().equals("budget")) {
+                return expense.getAmount();
+            }
+        }
+        return BigDecimal.ZERO;
+    }
+
+    public BigDecimal calculateGlobalBudget(BigDecimal startBudget, int numberOfMonths) {
+        BigDecimal numberOfMonthBigDecimal = BigDecimal.valueOf(numberOfMonths);
+        return startBudget.multiply(numberOfMonthBigDecimal);
+    }
+
+    public BigDecimal calculateGlobalSaving(BigDecimal globalBudget, BigDecimal totalAmount) {
+        return globalBudget.subtract(totalAmount);
+    }
+
+    public BigDecimal calculateMonthlySaving(BigDecimal globalSaving, int numberOfMonths) {
+        if (numberOfMonths == 0) {
+            return BigDecimal.ZERO;
+        }
+        BigDecimal numberOfMonthBigDecimal = BigDecimal.valueOf(numberOfMonths);
+        return globalSaving.divide(numberOfMonthBigDecimal, 2, RoundingMode.HALF_UP);
+    }
+
+    public int calculateMonthsNeeded(BigDecimal price, BigDecimal monthlySaving) {
+        if (monthlySaving.compareTo(BigDecimal.ZERO) <= 0) {
+            return -1;
+        }
+       int numberOfMonth = price.divide(monthlySaving, 0, RoundingMode.UP).intValue();
+       return numberOfMonth;
+    }
+
+    public BigDecimal calculateAvailableMonthlySaving(List<Expense> expenses) {
+        BigDecimal budget = findBudget(expenses);
+        List<Expense> onlyExpenses = removeBudget(expenses);
+        int months = countMonths(onlyExpenses);
+        BigDecimal totalAmount = calculateTotalAmount(calculateAmountForCategories(onlyExpenses));
+        BigDecimal globalBudget = calculateGlobalBudget(budget, months);
+        BigDecimal globalSaving = calculateGlobalSaving(globalBudget, totalAmount);
+        return calculateMonthlySaving(globalSaving, months);
+    }
 }

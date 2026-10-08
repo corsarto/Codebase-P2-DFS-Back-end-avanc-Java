@@ -26,7 +26,8 @@ public class ConsoleMenu {
                 case "1" -> showHistory();
                 case "2" -> addExpense();
                 case "3" -> statistics();
-                case "4" -> {
+                case "4" -> simulationForCar();
+                case "5" -> {
                     System.out.println("Goodbye");
                     running = false;
                 }
@@ -40,7 +41,8 @@ public class ConsoleMenu {
         System.out.println("1) Show history");
         System.out.println("2) Add expense");
         System.out.println("3) Statistics");
-        System.out.println("4) Quit");
+        System.out.println("4) Car purchase simulation");
+        System.out.println("5) Quit");
         System.out.print("Choose an option: ");
     }
 
@@ -81,7 +83,7 @@ public class ConsoleMenu {
     }
 
     private void statistics() {
-        List<Expense> expenses = service.loadAllExpenses();
+        List<Expense> expenses = service.removeBudget(service.loadAllExpenses());
         if (expenses.isEmpty()) {
             System.out.println("No expenses yet. Add one.");
             return;
@@ -105,5 +107,27 @@ public class ConsoleMenu {
             System.out.println(averageEntry.getKey() + " : " + averageEntry.getValue());
         }
 
+    }
+
+    private void simulationForCar(){
+        List<Expense> expenses = service.loadAllExpenses();
+
+        BigDecimal monthlySaving = service.calculateAvailableMonthlySaving(expenses);
+        System.out.println("Available monthly savings :" + monthlySaving);
+
+        try {
+            System.out.print("Price : ");
+            String prices = scanner.nextLine().trim().replace(',', '.');
+            BigDecimal price = new BigDecimal(prices);
+        
+            int monthsNeeded = service.calculateMonthsNeeded(price, monthlySaving);
+            if (monthsNeeded == -1) {
+                System.out.println("No savings available, purchase impossible.");
+            } else {
+                System.out.println("Months estimated to buy this car: " + monthsNeeded);
+            }
+        } catch(NumberFormatException ex) {
+            System.out.println("Invalid price format. Decimal is expected.");
+        }
     }
 }
