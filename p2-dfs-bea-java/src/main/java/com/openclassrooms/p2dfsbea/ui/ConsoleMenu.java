@@ -27,7 +27,8 @@ public class ConsoleMenu {
                 case "2" -> addExpense();
                 case "3" -> statistics();
                 case "4" -> simulationForCar();
-                case "5" -> {
+                case "5" -> simulationForHouse();
+                case "6" -> {
                     System.out.println("Goodbye");
                     running = false;
                 }
@@ -42,7 +43,8 @@ public class ConsoleMenu {
         System.out.println("2) Add expense");
         System.out.println("3) Statistics");
         System.out.println("4) Car purchase simulation");
-        System.out.println("5) Quit");
+        System.out.println("5) Mortgage purchase simulation");
+        System.out.println("6) Quit");
         System.out.print("Choose an option: ");
     }
 
@@ -129,5 +131,45 @@ public class ConsoleMenu {
         } catch(NumberFormatException ex) {
             System.out.println("Invalid price format. Decimal is expected.");
         }
+    }
+
+    private void simulationForHouse() {
+       List<Expense> expenses = service.loadAllExpenses();
+       
+       BigDecimal budget = service.findBudget(expenses);
+       BigDecimal amountAvailableForLoan = service.calculateAmountAvailableForLoan(expenses);
+
+       try {
+        System.out.print("Borrowing rate (e.g. 3 for 3%) :");
+        String borrowingRates = scanner.nextLine().trim().replace(',', '.');
+        BigDecimal borrowingRate = new BigDecimal(borrowingRates);
+
+        System.out.print("Monthly payment :");
+        String monthlyPayments = scanner.nextLine().trim().replace(',', '.');
+        BigDecimal monthlyPayment = new BigDecimal(monthlyPayments);  
+        
+        System.out.print("Loan term (e.g. 20 for 20 years) :");
+        String loanTerms = scanner.nextLine().trim();
+        int loanTerm = Integer.parseInt(loanTerms); 
+
+        if (!service.isPossibleToBuyWithDebtRatio(monthlyPayment, budget)) {
+
+            System.out.println("It is not possible to exceed a 35% debt-to-income ratio when taking out the loan.");
+
+        } else if (!service.isPossibleToBuyWithExpenses(monthlyPayment, amountAvailableForLoan)) {
+
+            System.out.println("Insufficient budget after expenses. Loan impossible.");
+
+        } else {
+
+            BigDecimal totalLoanAmount = service.calculateTotalLoanAmount(monthlyPayment, borrowingRate, loanTerm);
+            System.out.println("Total loan amount : " + totalLoanAmount);
+
+        }
+       } catch(NumberFormatException ex){
+
+            System.out.println("Please fill this in using numbers.");
+
+       } 
     }
 }
