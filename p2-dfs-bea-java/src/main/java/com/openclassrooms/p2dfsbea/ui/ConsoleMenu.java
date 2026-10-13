@@ -49,9 +49,13 @@ public class ConsoleMenu {
     }
 
     private void showHistory() {
-        List<Expense> list = service.loadAllExpenses();
+        List<Expense> expenses = service.removeBudget(service.loadAllExpenses());
         System.out.println("\nHistory (most recent first):");
-        list.stream().sorted((a, b) -> b.getDate().compareTo(a.getDate())).forEach(e -> System.out.println(e.toCsvLine()));
+        expenses.stream().sorted((a, b) -> b.getDate().compareTo(a.getDate())).forEach(e -> System.out.println(e.toCsvLine()));
+
+        Map<String, BigDecimal> amountForCategories = service.calculateAmountForCategories(expenses);
+        BigDecimal totalAmount = service.calculateTotalAmount(amountForCategories);
+        System.out.println(" Total expenses: " + totalAmount);
     }
 
     private void addExpense() {
