@@ -7,7 +7,6 @@ import com.openclassrooms.p2dfsbea.service.ExpenseService;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -60,9 +59,9 @@ public class ConsoleMenu {
 
     private void addExpense() {
         try {
-            System.out.print("Date (dd/MM/yyyy): ");
-            String dateS = scanner.nextLine().trim();
-            LocalDate date = LocalDate.parse(dateS, Expense.FORMATTER);
+            LocalDate dateOfToday = LocalDate.now();
+            String formattedDate = dateOfToday.format(Expense.FORMATTER);
+            System.out.println("Date : " + formattedDate );
 
             System.out.print("Category: ");
             String category = scanner.nextLine().trim();
@@ -74,11 +73,9 @@ public class ConsoleMenu {
             String amountS = scanner.nextLine().trim().replace(',', '.');
             BigDecimal amount = new BigDecimal(amountS);
 
-            Expense e = new Expense(date, category, description, amount);
+            Expense e = new Expense(dateOfToday, category, description, amount);
             service.addExpense(e);
             System.out.println("Expense added.");
-        } catch (DateTimeParseException dtpe) {
-            System.out.println("Invalid date format. Use dd/MM/yyyy.");
         } catch (IOException io) {
             System.out.println("Unable to save expense: " + io.getMessage());
         } catch(NumberFormatException ex) {
