@@ -139,38 +139,23 @@ public class ConsoleMenu {
        
        BigDecimal budget = service.findBudget(expenses);
        BigDecimal amountAvailableForLoan = service.calculateAmountAvailableForLoan(expenses);
+       BigDecimal monthlyPayment = service.calculateMonthlyPayment(amountAvailableForLoan, budget);
+
+       System.out.println("Monthly payment : " + monthlyPayment);
 
        try {
         System.out.print("Borrowing rate (e.g. 3 for 3%) :");
         String borrowingRates = scanner.nextLine().trim().replace(',', '.');
         BigDecimal borrowingRate = new BigDecimal(borrowingRates);
-
-        System.out.print("Monthly payment :");
-        String monthlyPayments = scanner.nextLine().trim().replace(',', '.');
-        BigDecimal monthlyPayment = new BigDecimal(monthlyPayments);  
         
         System.out.print("Loan term (e.g. 20 for 20 years) :");
         String loanTerms = scanner.nextLine().trim();
         int loanTerm = Integer.parseInt(loanTerms); 
 
-        if (!service.isPossibleToBuyWithDebtRatio(monthlyPayment, budget)) {
-
-            System.out.println("It is not possible to exceed a 35% debt-to-income ratio when taking out the loan.");
-
-        } else if (!service.isPossibleToBuyWithExpenses(monthlyPayment, amountAvailableForLoan)) {
-
-            System.out.println("Insufficient budget after expenses. Loan impossible.");
-
-        } else {
-
-            BigDecimal totalLoanAmount = service.calculateTotalLoanAmount(monthlyPayment, borrowingRate, loanTerm);
-            System.out.println("Total loan amount : " + totalLoanAmount);
-
-        }
+        BigDecimal totalLoanAmount = service.calculateTotalLoanAmount(monthlyPayment, borrowingRate, loanTerm);
+        System.out.println("Total loan amount : " + totalLoanAmount);
        } catch(NumberFormatException ex){
-
             System.out.println("Please fill this in using numbers.");
-
        } 
     }
 }

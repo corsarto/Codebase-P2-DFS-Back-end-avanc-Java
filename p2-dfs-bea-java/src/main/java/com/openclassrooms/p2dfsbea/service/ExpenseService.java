@@ -5,7 +5,6 @@ import com.openclassrooms.p2dfsbea.repository.ExpenseRepository;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.YearMonth;
 import java.util.*;
@@ -13,7 +12,6 @@ import java.util.*;
 public class ExpenseService {
     private final ExpenseRepository repository;
     private static final BigDecimal MAX_DEBT_RATIO = BigDecimal.valueOf(0.35);
-    private static final BigDecimal ANNUAL_PERCENT_TO_MONTHLY_RATE = BigDecimal.valueOf(1200);
 
     public ExpenseService(ExpenseRepository repository) {
         this.repository = repository;
@@ -127,14 +125,6 @@ public class ExpenseService {
         return calculateMonthlySaving(globalSaving, months);
     }
 
-    public boolean isPossibleToBuyWithDebtRatio(BigDecimal monthlyPayment, BigDecimal budget) {
-        BigDecimal paymentLimit = budget.multiply(MAX_DEBT_RATIO);
-        if (monthlyPayment.compareTo(paymentLimit) <= 0) {
-            return true;
-        }
-        return false;
-    }
-
     public BigDecimal calculateAmountAvailableForLoan(List<Expense> expenses) {
         BigDecimal monthlySaving = calculateAvailableMonthlySaving(expenses);
         List<Expense> allCategoryExceptBudget = removeBudget(expenses);
@@ -145,26 +135,19 @@ public class ExpenseService {
         return monthlySaving.add(monthlyRent);
     }
 
-    public boolean isPossibleToBuyWithExpenses(BigDecimal monthlyPayment, BigDecimal amountAvailableForLoan) {
-        if (monthlyPayment.compareTo(amountAvailableForLoan) <= 0) {
-            return true;
-        }
-        return false;
+    public BigDecimal calculateMonthlyPayment(BigDecimal amountAvailableForLoan, BigDecimal budget) {
+        BigDecimal paymentLimit = budget.multiply(MAX_DEBT_RATIO).setScale(2, RoundingMode.HALF_UP);
+        return paymentLimit.min(amountAvailableForLoan);
     }
 
     public BigDecimal calculateTotalLoanAmount(BigDecimal monthlyPayment, BigDecimal borrowingRate, int loanTermInYears) {
         int loanTermInMonths = loanTermInYears * 12;
-
-        if (borrowingRate.compareTo(BigDecimal.ZERO) == 0) {
-            return monthlyPayment.multiply(BigDecimal.valueOf(loanTermInMonths)).setScale(2, RoundingMode.HALF_UP);
-        }
-
-        BigDecimal monthlyBorrowingRate = borrowingRate.divide(ANNUAL_PERCENT_TO_MONTHLY_RATE, 8, RoundingMode.HALF_UP);
-        BigDecimal onePlusMonthlyRate = monthlyBorrowingRate.add(BigDecimal.ONE);
-        BigDecimal onePlusRatePowNegativeMonths = onePlusMonthlyRate.pow(-loanTermInMonths, MathContext.DECIMAL64);
-        BigDecimal oneMinusRatePowNegativeMonths = BigDecimal.ONE.subtract(onePlusRatePowNegativeMonths);
-        BigDecimal annuityFactor = oneMinusRatePowNegativeMonths.divide(monthlyBorrowingRate, 8, RoundingMode.HALF_UP);
-        BigDecimal totalLoanAmount = monthlyPayment.multiply(annuityFactor);
-        return totalLoanAmount.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal totalRefund = monthlyPayment.multiply(BigDecimal.valueOf(loanTermInMonths));
+        BigDecimal rateAsAPercentageInDecimal = borrowingRate.divide(BigDecimal.valueOf(100));
+        BigDecimal ratePerYear = rateAsAPercentageInDecimal.multiply(BigDecimal.valueOf(loanTermInYears));
+        BigDecimal ratePerYearDivideByHalf = ratePerYear.divide(BigDecimal.valueOf(2));
+        BigDecimal ratePerYearDivideByHalfPlusOne = ratePerYearDivideByHalf.add(BigDecimal.valueOf(1));
+        BigDecimal totalLoanAmount = totalRefund.divide(ratePerYearDivideByHalfPlusOne, 2, RoundingMode.HALF_UP);
+        return totalLoanAmount;
     }
 }
