@@ -154,7 +154,7 @@ public class ExpenseServiceTest {
         ExpenseService service = new ExpenseService(null);
         List<Expense> expenses = new ArrayList<>();
         Expense foods = new Expense(LocalDate.of(2026, 3, 15), "food", "restaurant", BigDecimal.valueOf(78));
-         Expense budgets = new Expense(LocalDate.of(2026, 3, 24), "budget", "salary", BigDecimal.valueOf(2000));
+        Expense budgets = new Expense(LocalDate.of(2026, 3, 24), "budget", "salary", BigDecimal.valueOf(2000));
         Expense transports = new Expense(LocalDate.of(2026, 5, 18), "transport", "bus", BigDecimal.valueOf(15));
         expenses.add(foods);
         expenses.add(budgets);
@@ -216,7 +216,7 @@ public class ExpenseServiceTest {
     }
 
     @Test 
-    public void calculateMonthsNeeded_shouldReturnRoundedDivision_whenMonthlySavingAndMonthsExists() {
+    public void calculateMonthsNeeded_shouldReturnRoundedDivision_whenMonthlySavingAndMonthsExist() {
         ExpenseService service = new ExpenseService(null);
         BigDecimal monthlySaving = BigDecimal.valueOf(552);
         BigDecimal price = BigDecimal.valueOf(10000);
@@ -224,5 +224,103 @@ public class ExpenseServiceTest {
         int result = service.calculateMonthsNeeded(price, monthlySaving);
 
         assertEquals(19, result);
+    }
+
+    @Test 
+    public void calculateAvailableMonthlySaving_shouldReturnAvailableMonthlySaving_whenBudgetAndExpensesExist() {
+        ExpenseService service = new ExpenseService(null);
+        List<Expense> expenses = new ArrayList<>();
+        Expense foods = new Expense(LocalDate.of(2026, 3, 15), "food", "restaurant", BigDecimal.valueOf(78));
+        Expense housings = new Expense(LocalDate.of(2026, 3, 24), "housing", "rent", BigDecimal.valueOf(850));
+        Expense budgets = new Expense(LocalDate.of(2026, 3, 29), "budget", "salary", BigDecimal.valueOf(2000));
+        Expense transports = new Expense(LocalDate.of(2026, 5, 18), "transport", "bus", BigDecimal.valueOf(15));
+        expenses.add(foods);
+        expenses.add(housings);
+        expenses.add(budgets);
+        expenses.add(transports);
+
+        BigDecimal result = service.calculateAvailableMonthlySaving(expenses);
+
+        assertEquals(new BigDecimal("1528.50"), result);
+    }
+
+    @Test 
+    public void calculateAmountAvailableForLoan_shouldReturnAllBudgetAvailable_whenHousingExists() {
+        ExpenseService service = new ExpenseService(null);
+        List<Expense> expenses = new ArrayList<>();
+        Expense foods = new Expense(LocalDate.of(2026, 3, 15), "food", "restaurant", BigDecimal.valueOf(78));
+        Expense housings = new Expense(LocalDate.of(2026, 3, 24), "housing", "rent", BigDecimal.valueOf(850));
+        Expense budgets = new Expense(LocalDate.of(2026, 3, 29), "budget", "salary", BigDecimal.valueOf(2000));
+        Expense transports = new Expense(LocalDate.of(2026, 5, 18), "transport", "bus", BigDecimal.valueOf(15));
+        expenses.add(foods);
+        expenses.add(housings);
+        expenses.add(budgets);
+        expenses.add(transports);
+
+        BigDecimal result = service.calculateAmountAvailableForLoan(expenses);
+
+        assertEquals(new BigDecimal("1953.50"), result);
+    }
+
+    @Test 
+    public void calculateAmountAvailableForLoan_shouldReturnAllBudgetAvailable_whenHousingDoesNotExist() {
+        ExpenseService service = new ExpenseService(null);
+        List<Expense> expenses = new ArrayList<>();
+        Expense foods = new Expense(LocalDate.of(2026, 3, 15), "food", "restaurant", BigDecimal.valueOf(78));        
+        Expense budgets = new Expense(LocalDate.of(2026, 3, 29), "budget", "salary", BigDecimal.valueOf(2000));
+        Expense transports = new Expense(LocalDate.of(2026, 5, 18), "transport", "bus", BigDecimal.valueOf(15));
+        expenses.add(foods);
+        expenses.add(budgets);
+        expenses.add(transports);
+
+        BigDecimal result = service.calculateAmountAvailableForLoan(expenses);
+
+        assertEquals(new BigDecimal("1953.50"), result);
+    }
+
+    @Test 
+    public void calculateMonthlyPayment_shouldReturnDebtRatioLimit_whenBudgetDebtRatioLimitIsSmallestValue() {
+        ExpenseService service = new ExpenseService(null);
+        BigDecimal budget = BigDecimal.valueOf(300);
+        BigDecimal amountAvailableForLoan = BigDecimal.valueOf(350);
+        
+        BigDecimal result = service.calculateMonthlyPayment(amountAvailableForLoan, budget);
+
+        assertEquals(new BigDecimal("105.00"), result);
+    }
+
+    @Test 
+    public void calculateMonthlyPayment_shouldReturnAmountAvailableForLoan_whenAmountForLoanIsSmallestValue() {
+        ExpenseService service = new ExpenseService(null);
+        BigDecimal budget = BigDecimal.valueOf(800);
+        BigDecimal amountAvailableForLoan = BigDecimal.valueOf(250);
+        
+        BigDecimal result = service.calculateMonthlyPayment(amountAvailableForLoan, budget);
+
+        assertEquals(BigDecimal.valueOf(250), result);
+    }
+
+    @Test 
+    public void calculateTotalLoanAmount_shouldReturnTotalLoanAmount_whenBorrowingRateIsGreaterThanZero() {
+        ExpenseService service = new ExpenseService(null);
+        BigDecimal borrowingRate = BigDecimal.valueOf(3);
+        int loanTermInYears = 20;
+        BigDecimal monthlyPayment = BigDecimal.valueOf(700);
+
+        BigDecimal result = service.calculateTotalLoanAmount(monthlyPayment, borrowingRate, loanTermInYears);
+
+        assertEquals(new BigDecimal("129230.77"), result);
+    }
+
+    @Test 
+    public void calculateTotalLoanAmount_shouldReturnTotalLoanAmount_whenBorrowingRateIsZero() {
+        ExpenseService service = new ExpenseService(null);
+        BigDecimal borrowingRate = BigDecimal.valueOf(0);
+        int loanTermInYears = 20;
+        BigDecimal monthlyPayment = BigDecimal.valueOf(700);
+
+        BigDecimal result = service.calculateTotalLoanAmount(monthlyPayment, borrowingRate, loanTermInYears);
+
+        assertEquals(new BigDecimal("168000.00"), result);
     }
 }
