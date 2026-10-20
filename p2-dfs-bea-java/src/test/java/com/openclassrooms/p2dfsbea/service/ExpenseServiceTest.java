@@ -1,6 +1,5 @@
 package com.openclassrooms.p2dfsbea.service;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -13,6 +12,7 @@ import java.util.TreeMap;
 import com.openclassrooms.p2dfsbea.model.Expense;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ExpenseServiceTest {
@@ -111,5 +111,118 @@ public class ExpenseServiceTest {
 
         assertEquals(BigDecimal.valueOf(33.33), result.get("food"));
 
+    }
+
+    @Test 
+    public void removeBudget_shouldReturnExpensesOutsideTheBudget_whenBudgetExists() {
+
+        ExpenseService service = new ExpenseService(null);
+        List<Expense> expenses = new ArrayList<>();
+        Expense budgets = new Expense(LocalDate.of(2026, 3, 24), "budget", "salary", BigDecimal.valueOf(2000));
+        Expense foods = new Expense(LocalDate.of(2026, 3, 15), "food", "restaurant", BigDecimal.valueOf(78));
+        Expense transports = new Expense(LocalDate.of(2026, 5, 18), "transport", "bus", BigDecimal.valueOf(15));
+        expenses.add(budgets);
+        expenses.add(foods);
+        expenses.add(transports);
+
+        List<Expense> result = service.removeBudget(expenses);
+
+        assertEquals(2, result.size());
+        assertFalse(result.contains(budgets));
+    }
+
+    @Test 
+    public void removeBudget_shouldReturnAllExpenses_whenBudgetDoesNotExist() {
+        ExpenseService service = new ExpenseService(null);
+        List<Expense> expenses = new ArrayList<>();
+        Expense groceries = new Expense(LocalDate.of(2026, 3, 24), "grocerie", "grocery shopping", BigDecimal.valueOf(43));
+        Expense foods = new Expense(LocalDate.of(2026, 3, 15), "food", "restaurant", BigDecimal.valueOf(78));
+        Expense transports = new Expense(LocalDate.of(2026, 5, 18), "transport", "bus", BigDecimal.valueOf(15));
+        expenses.add(groceries);
+        expenses.add(foods);
+        expenses.add(transports);
+
+        List<Expense> result = service.removeBudget(expenses);
+
+        assertEquals(3, result.size());
+        assertTrue(result.contains(foods));
+    }
+
+    @Test 
+    public void findBudget_shouldReturnAmountOfBudget_whenBudgetExists() {
+
+        ExpenseService service = new ExpenseService(null);
+        List<Expense> expenses = new ArrayList<>();
+        Expense foods = new Expense(LocalDate.of(2026, 3, 15), "food", "restaurant", BigDecimal.valueOf(78));
+         Expense budgets = new Expense(LocalDate.of(2026, 3, 24), "budget", "salary", BigDecimal.valueOf(2000));
+        Expense transports = new Expense(LocalDate.of(2026, 5, 18), "transport", "bus", BigDecimal.valueOf(15));
+        expenses.add(foods);
+        expenses.add(budgets);
+        expenses.add(transports);
+
+        BigDecimal result = service.findBudget(expenses);
+
+        assertEquals(BigDecimal.valueOf(2000), result);
+    }
+
+    @Test 
+    public void findBudget_shouldReturnZero_whenBudgetDoesNotExist() {
+        ExpenseService service = new ExpenseService(null);
+        List<Expense> expenses = new ArrayList<>();
+        Expense foods = new Expense(LocalDate.of(2026, 3, 15), "food", "restaurant", BigDecimal.valueOf(78));
+        Expense transports = new Expense(LocalDate.of(2026, 5, 18), "transport", "bus", BigDecimal.valueOf(15));
+        expenses.add(foods);
+        expenses.add(transports);
+
+        BigDecimal result = service.findBudget(expenses);
+
+        assertEquals(BigDecimal.ZERO, result);
+    }
+
+    @Test 
+    public void calculateMonthlySaving_shouldReturnZero_whenThereIsNoMonths() {
+        ExpenseService service = new ExpenseService(null);
+        BigDecimal globalSaving = BigDecimal.valueOf(478);
+        int numberOfMonths = 0;
+
+        BigDecimal result = service.calculateMonthlySaving(globalSaving, numberOfMonths);
+
+        assertEquals(BigDecimal.ZERO, result);
+    }
+
+    @Test 
+    public void calculateMonthlySaving_shouldReturnRoundedDivision_whenMonthsExists() {
+        ExpenseService service = new ExpenseService(null);
+        BigDecimal globalSaving = BigDecimal.valueOf(478);
+        int numberOfMonths = 6;
+
+        BigDecimal result = service.calculateMonthlySaving(globalSaving, numberOfMonths);
+
+        assertEquals(BigDecimal.valueOf(79.67), result);
+    }
+
+    @Test 
+    public void calculateMonthsNeeded_shouldReturnNegativeNumber_whenMonthlySavingsAreEqualToOrLessThanZero() {
+        ExpenseService service = new ExpenseService(null);
+        BigDecimal monthlySavingNegative = BigDecimal.valueOf(-23);
+        BigDecimal monthlySavingZero = BigDecimal.ZERO;
+        BigDecimal price = BigDecimal.valueOf(2345);
+
+        int resultNegative = service.calculateMonthsNeeded(price, monthlySavingNegative);
+        int resultZero = service.calculateMonthsNeeded(price, monthlySavingZero);
+
+        assertEquals(-1, resultNegative);
+        assertEquals(-1, resultZero);
+    }
+
+    @Test 
+    public void calculateMonthsNeeded_shouldReturnRoundedDivision_whenMonthlySavingAndMonthsExists() {
+        ExpenseService service = new ExpenseService(null);
+        BigDecimal monthlySaving = BigDecimal.valueOf(552);
+        BigDecimal price = BigDecimal.valueOf(10000);
+
+        int result = service.calculateMonthsNeeded(price, monthlySaving);
+
+        assertEquals(19, result);
     }
 }
