@@ -204,8 +204,8 @@ public class ExpenseServiceTest {
         int resultNegative = service.calculateMonthsNeeded(price, monthlySavingNegative);
         int resultZero = service.calculateMonthsNeeded(price, monthlySavingZero);
 
-        assertEquals(-1, resultNegative);
-        assertEquals(-1, resultZero);
+        assertEquals(ExpenseService.NO_SAVINGS, resultNegative);
+        assertEquals(ExpenseService.NO_SAVINGS, resultZero);
     }
 
     @Test 

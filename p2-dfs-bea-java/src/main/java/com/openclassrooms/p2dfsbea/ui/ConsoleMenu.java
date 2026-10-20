@@ -124,7 +124,7 @@ public class ConsoleMenu {
             BigDecimal price = new BigDecimal(prices);
         
             int monthsNeeded = service.calculateMonthsNeeded(price, monthlySaving);
-            if (monthsNeeded == -1) {
+            if (monthsNeeded == ExpenseService.NO_SAVINGS) {
                 System.out.println("No savings available, purchase impossible.");
             } else {
                 System.out.println("Months estimated to buy this car: " + monthsNeeded);
@@ -152,8 +152,12 @@ public class ConsoleMenu {
         String loanTerms = scanner.nextLine().trim();
         int loanTerm = Integer.parseInt(loanTerms); 
 
-        BigDecimal totalLoanAmount = service.calculateTotalLoanAmount(monthlyPayment, borrowingRate, loanTerm);
-        System.out.println("Total loan amount : " + totalLoanAmount);
+        if (borrowingRate.compareTo(BigDecimal.ZERO) < 0 || loanTerm <= 0) {
+            System.out.println("The rate cannot be negative and the duration must be at least 1 year.");
+        } else {
+            BigDecimal totalLoanAmount = service.calculateTotalLoanAmount(monthlyPayment, borrowingRate, loanTerm);
+            System.out.println("Total loan amount : " + totalLoanAmount);
+        }
        } catch(NumberFormatException ex){
             System.out.println("Please fill this in using numbers.");
        } 

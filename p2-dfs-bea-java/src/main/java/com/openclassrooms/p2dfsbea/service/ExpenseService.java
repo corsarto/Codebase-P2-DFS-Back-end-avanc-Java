@@ -12,6 +12,9 @@ import java.util.*;
 public class ExpenseService {
     private final ExpenseRepository repository;
     private static final BigDecimal MAX_DEBT_RATIO = BigDecimal.valueOf(0.35);
+    private static final String BUDGET = "budget";
+    private static final String HOUSING = "housing";
+    public static final int NO_SAVINGS = -1;
 
     public ExpenseService(ExpenseRepository repository) {
         this.repository = repository;
@@ -26,9 +29,6 @@ public class ExpenseService {
     }
 
     public Map<String, BigDecimal> calculateAmountForCategories(List<Expense> expenses) {
-        if (expenses.isEmpty()) {
-           return new TreeMap<>();
-        }
         Map<String, BigDecimal> totalsByCategories = new TreeMap<>(); 
         for (Expense expense : expenses) {
             if (totalsByCategories.containsKey(expense.getCategory())) {
@@ -74,7 +74,7 @@ public class ExpenseService {
     public List<Expense> removeBudget(List<Expense> expenses) {
         List<Expense> allCategoryExceptBudget = new ArrayList<Expense>();
             for (Expense expense : expenses) {
-                if (!expense.getCategory().equals("budget"))  {
+                if (!expense.getCategory().equals(BUDGET))  {
                     allCategoryExceptBudget.add(expense);
                 }
             }
@@ -83,7 +83,7 @@ public class ExpenseService {
 
     public BigDecimal findBudget(List<Expense> expenses) {
         for (Expense expense : expenses) {
-            if (expense.getCategory().equals("budget")) {
+            if (expense.getCategory().equals(BUDGET)) {
                 return expense.getAmount();
             }
         }
@@ -109,7 +109,7 @@ public class ExpenseService {
 
     public int calculateMonthsNeeded(BigDecimal price, BigDecimal monthlySaving) {
         if (monthlySaving.compareTo(BigDecimal.ZERO) <= 0) {
-            return -1;
+            return NO_SAVINGS;
         }
        int numberOfMonth = price.divide(monthlySaving, 0, RoundingMode.UP).intValue();
        return numberOfMonth;
@@ -131,7 +131,7 @@ public class ExpenseService {
         Map<String, BigDecimal> totalsByCategories = calculateAmountForCategories(allCategoryExceptBudget); 
         int allMonths = countMonths(allCategoryExceptBudget);
         Map<String, BigDecimal> averageByCategory = calculateMonthlyAverageByCategories(totalsByCategories, allMonths);
-        BigDecimal monthlyRent = averageByCategory.getOrDefault("housing", BigDecimal.ZERO);
+        BigDecimal monthlyRent = averageByCategory.getOrDefault(HOUSING, BigDecimal.ZERO);
         return monthlySaving.add(monthlyRent);
     }
 
