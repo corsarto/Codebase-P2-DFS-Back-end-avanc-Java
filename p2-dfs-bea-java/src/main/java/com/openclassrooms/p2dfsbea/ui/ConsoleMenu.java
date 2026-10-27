@@ -123,12 +123,16 @@ public class ConsoleMenu {
             String prices = scanner.nextLine().trim().replace(',', '.');
             BigDecimal price = new BigDecimal(prices);
         
-            int monthsNeeded = service.calculateMonthsNeeded(price, monthlySaving);
-            if (monthsNeeded == ExpenseService.NO_SAVINGS) {
-                System.out.println("No savings available, purchase impossible.");
+            if (price.compareTo(BigDecimal.ZERO) <= 0) {
+                System.out.println("The price must be greater than 0.");
             } else {
-                System.out.println("Months estimated to buy this car: " + monthsNeeded);
-            }
+                int monthsNeeded = service.calculateMonthsNeeded(price, monthlySaving);
+                    if (monthsNeeded == ExpenseService.NO_SAVINGS) {
+                        System.out.println("No savings available, purchase impossible.");
+                    } else {
+                        System.out.println("Months estimated to buy this car: " + monthsNeeded);
+                    }
+                }
         } catch(NumberFormatException ex) {
             System.out.println("Invalid price format. Decimal is expected.");
         }
