@@ -3,6 +3,8 @@ package com.openclassrooms.p2dfsbea.ui;
 import com.openclassrooms.p2dfsbea.model.Expense;
 import com.openclassrooms.p2dfsbea.repository.ExpenseRepository;
 import com.openclassrooms.p2dfsbea.service.ExpenseService;
+import com.openclassrooms.p2dfsbea.service.ExpenseServiceCar;
+import com.openclassrooms.p2dfsbea.service.ExpenseServiceLoan;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -15,6 +17,8 @@ public class ConsoleMenu {
     private final Scanner scanner = new Scanner(System.in);
     private final ExpenseRepository repository = new ExpenseRepository();
     private final ExpenseService service = new ExpenseService(repository);
+    private final ExpenseServiceCar serviceCar = new ExpenseServiceCar();
+    private final ExpenseServiceLoan serviceLoan = new ExpenseServiceLoan(service);
 
     public void start() {
         boolean running = true;
@@ -126,8 +130,8 @@ public class ConsoleMenu {
             if (price.compareTo(BigDecimal.ZERO) <= 0) {
                 System.out.println("The price must be greater than 0.");
             } else {
-                int monthsNeeded = service.calculateMonthsNeeded(price, monthlySaving);
-                    if (monthsNeeded == ExpenseService.NO_SAVINGS) {
+                int monthsNeeded = serviceCar.calculateMonthsNeeded(price, monthlySaving);
+                    if (monthsNeeded == ExpenseServiceCar.NO_SAVINGS) {
                         System.out.println("No savings available, purchase impossible.");
                     } else {
                         System.out.println("Months estimated to buy this car: " + monthsNeeded);
@@ -142,8 +146,8 @@ public class ConsoleMenu {
        List<Expense> expenses = service.loadAllExpenses();
        
        BigDecimal budget = service.findBudget(expenses);
-       BigDecimal amountAvailableForLoan = service.calculateAmountAvailableForLoan(expenses);
-       BigDecimal monthlyPayment = service.calculateMonthlyPayment(amountAvailableForLoan, budget);
+       BigDecimal amountAvailableForLoan = serviceLoan.calculateAmountAvailableForLoan(expenses);
+       BigDecimal monthlyPayment = serviceLoan.calculateMonthlyPayment(amountAvailableForLoan, budget);
 
        System.out.println("Monthly payment : " + monthlyPayment);
 
@@ -159,7 +163,7 @@ public class ConsoleMenu {
         if (borrowingRate.compareTo(BigDecimal.ZERO) < 0 || loanTerm <= 0) {
             System.out.println("The rate cannot be negative and the duration must be at least 1 year.");
         } else {
-            BigDecimal totalLoanAmount = service.calculateTotalLoanAmount(monthlyPayment, borrowingRate, loanTerm);
+            BigDecimal totalLoanAmount = serviceLoan.calculateTotalLoanAmount(monthlyPayment, borrowingRate, loanTerm);
             System.out.println("Total loan amount : " + totalLoanAmount);
         }
        } catch(NumberFormatException ex){

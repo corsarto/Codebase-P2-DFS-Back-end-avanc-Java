@@ -11,10 +11,7 @@ import java.util.*;
 
 public class ExpenseService {
     private final ExpenseRepository repository;
-    private static final BigDecimal MAX_DEBT_RATIO = BigDecimal.valueOf(0.35);
     private static final String BUDGET = "budget";
-    private static final String HOUSING = "housing";
-    public static final int NO_SAVINGS = -1;
 
     public ExpenseService(ExpenseRepository repository) {
         this.repository = repository;
@@ -107,14 +104,6 @@ public class ExpenseService {
         return globalSaving.divide(numberOfMonthBigDecimal, 2, RoundingMode.HALF_UP);
     }
 
-    public int calculateMonthsNeeded(BigDecimal price, BigDecimal monthlySaving) {
-        if (monthlySaving.compareTo(BigDecimal.ZERO) <= 0) {
-            return NO_SAVINGS;
-        }
-       int numberOfMonth = price.divide(monthlySaving, 0, RoundingMode.UP).intValue();
-       return numberOfMonth;
-    }
-
     public BigDecimal calculateAvailableMonthlySaving(List<Expense> expenses) {
         BigDecimal budget = findBudget(expenses);
         List<Expense> onlyExpenses = removeBudget(expenses);
@@ -123,31 +112,7 @@ public class ExpenseService {
         BigDecimal globalBudget = calculateGlobalBudget(budget, months);
         BigDecimal globalSaving = calculateGlobalSaving(globalBudget, totalAmount);
         return calculateMonthlySaving(globalSaving, months);
+    
     }
-
-    public BigDecimal calculateAmountAvailableForLoan(List<Expense> expenses) {
-        BigDecimal monthlySaving = calculateAvailableMonthlySaving(expenses);
-        List<Expense> allCategoryExceptBudget = removeBudget(expenses);
-        Map<String, BigDecimal> totalsByCategories = calculateAmountForCategories(allCategoryExceptBudget); 
-        int allMonths = countMonths(allCategoryExceptBudget);
-        Map<String, BigDecimal> averageByCategory = calculateMonthlyAverageByCategories(totalsByCategories, allMonths);
-        BigDecimal monthlyRent = averageByCategory.getOrDefault(HOUSING, BigDecimal.ZERO);
-        return monthlySaving.add(monthlyRent);
-    }
-
-    public BigDecimal calculateMonthlyPayment(BigDecimal amountAvailableForLoan, BigDecimal budget) {
-        BigDecimal paymentLimit = budget.multiply(MAX_DEBT_RATIO).setScale(2, RoundingMode.HALF_UP);
-        return paymentLimit.min(amountAvailableForLoan);
-    }
-
-    public BigDecimal calculateTotalLoanAmount(BigDecimal monthlyPayment, BigDecimal borrowingRate, int loanTermInYears) {
-        int loanTermInMonths = loanTermInYears * 12;
-        BigDecimal totalRefund = monthlyPayment.multiply(BigDecimal.valueOf(loanTermInMonths));
-        BigDecimal rateAsAPercentageInDecimal = borrowingRate.divide(BigDecimal.valueOf(100));
-        BigDecimal ratePerYear = rateAsAPercentageInDecimal.multiply(BigDecimal.valueOf(loanTermInYears));
-        BigDecimal ratePerYearDivideByHalf = ratePerYear.divide(BigDecimal.valueOf(2));
-        BigDecimal ratePerYearDivideByHalfPlusOne = ratePerYearDivideByHalf.add(BigDecimal.valueOf(1));
-        BigDecimal totalLoanAmount = totalRefund.divide(ratePerYearDivideByHalfPlusOne, 2, RoundingMode.HALF_UP);
-        return totalLoanAmount;
-    }
+    
 }
